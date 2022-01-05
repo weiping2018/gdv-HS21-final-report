@@ -1,0 +1,140 @@
+---
+title: "LO3 and LO4"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+```
+
+
+LO3
+```{r}
+data("starwars")
+view(starwars)
+```
+
+```{r}
+sum(is.na(starwars$height)) 
+sum(is.na(starwars$mass))
+sum(is.na(starwars$gender))
+# There are 6 NA, 28 NA and 4 NA respectively in the column height, mass, gender
+```
+```{r}
+ggplot(starwars,aes(height, mass,color=gender)) +
+  geom_point()
+```
+
+```{r}
+# remove the extreme large value max(mass)
+df_max <- starwars %>% filter(mass == max(mass, na.rm=TRUE))
+starwars_f <- starwars %>% filter(name != 'Jabba Desilijic Tiure')
+# possibility 1: not deal with NA values
+ggplot(starwars_f,aes(height)) +
+  geom_histogram(bins = 7)+
+  theme_gray(base_size = 20)+
+  labs(x="height (cm)")
+```
+```{r}
+ggplot(starwars_f,aes(gender,mass)) +
+  geom_boxplot(width = .5)+
+  theme_gray(base_size = 20)+
+  labs(y="mass (kg)")
+```
+
+
+
+```{r}
+starwars %>% group_by(gender)%>% count()
+```
+
+```{r}
+# possibility 2: Impute missing continous values with Median, impute the missing categorical value with mode 
+
+starwars_1 <- starwars_f %>% mutate(height = replace(height, is.na(height),median(height,na.rm = TRUE)))%>% mutate(mass = replace(mass, is.na(mass),median(mass,na.rm = TRUE)), gender = replace(gender, is.na(gender),'masculine'))
+
+ggplot(starwars_1,aes(height)) +
+  geom_histogram(bins = 7)+
+  theme_gray(base_size = 20) +
+  labs(x="height (cm)")                       
+```
+```{r}
+ggplot(starwars_1,aes(gender,mass)) +
+  geom_boxplot(width = .33)+
+  theme_gray(base_size = 20)+
+  labs(y="mass (kg)")
+```
+
+
+```{r}
+# possibility 3: drop the rows with NA
+
+starwars_reduced <- starwars_f %>% select(mass, height,gender)%>% filter(complete.cases(.))
+ggplot(starwars_reduced,aes(height)) +
+  geom_histogram(bins = 7)+
+  theme_gray(base_size = 20)+
+  labs(x="height (cm)")
+```
+```{r}
+ggplot(starwars_reduced,aes(gender,mass)) +
+  geom_boxplot(width = .33)+
+  theme_gray(base_size = 20)+
+  labs(y="mass (kg)")
+```
+
+LO4
+```{r}
+data("diamonds")
+view(diamonds)
+df <- diamonds %>% filter(complete.cases(.))
+```
+
+```{r}
+ggplot(df,aes(carat,price)) +    
+  geom_point(position = "jitter")
+```
+```{r}
+ggplot(df,aes(carat,price, color=clarity)) +  # add a third variable clarity as color    
+  geom_point(position = "jitter")      # create a scatterplot of two continuous variables
+```
+
+```{r}
+ggplot(df,aes(carat,price, color=clarity)) +    
+  geom_point(position = "jitter") +     # create a scatterplot of two continuous variables
+  geom_smooth(size = 1, linetype = 6)
+```
+```{r}
+ggplot(df,aes(carat,price, color=clarity)) +    
+  geom_point(position = "jitter") +     # create a scatterplot of two continuous variables
+  scale_y_log10() +                    # scale the y axis by log10
+  theme(legend.text = element_text(size = 14))+
+  theme_gray(base_size = 18)
+```
+```{r}
+ggplot(df,aes(carat,price, color=clarity)) +    
+  geom_point(position = "jitter") +     # create a scatterplot of two continuous variables
+  scale_y_log10() +                             # scale the y axis by log10
+  geom_smooth(size = 1, linetype = 6)  +  # add smooth liner
+  theme(legend.text = element_text(size = 14))+
+  theme_gray(base_size = 18)
+```
+
+```{r}
+ggplot(df,aes(carat,price, color=clarity)) +
+  geom_point(position = "jitter",size = 0.1) +
+  scale_y_log10() +
+  geom_smooth(size = 1, linetype = 6, color = "black") +
+  facet_wrap(vars(clarity))  #use facet to divide a plot into subplots based on variable clarity
+```
+
+
+```{r}
+ggplot(df,aes(clarity,price)) +
+  geom_boxplot() +
+  coord_flip()
+
+
+```
+
+
